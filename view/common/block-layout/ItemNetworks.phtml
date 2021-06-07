@@ -1,0 +1,81 @@
+<?php
+
+$idItem =$this->params()->fromQuery('id', '');
+$idAno =$this->params()->fromQuery('ano', '');
+if($idItem){
+    $resource = $this->api()->read('items', $idItem)->getContent();
+} elseif ($idAno) {
+    $resource = $this->api()->read('annotations', $idAno)->getContent();
+} else{
+    $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent()[0];
+}        
+
+$reseau = $this->ItemNetworksFactory($resource,2);
+$colors = $this->colors;
+
+?>
+<h4><?php echo $this->heading.' : '.$resource->displayTitle();?> <a href="<?php echo $resource->adminUrl(); ?>">(admin)</a></h4>
+<div class="cartoSem" id='cartoReseau' ></div>
+
+<div id='itemValues' ><?php echo $resource->displayValues();?></div>
+
+
+<div id="id01" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
+
+      <div class="w3-center"><br>
+        <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-xlarge w3-hover-red w3-display-topright" title="Close Modal">&times;</span>
+        <img src="img_avatar4.png" alt="Avatar" style="width:30%" class="w3-circle w3-margin-top">
+      </div>
+
+      <form class="w3-container" action="/action_page.php">
+        <div class="w3-section">
+          <label><b>Username</b></label>
+          <input class="w3-input w3-border w3-margin-bottom" type="text" placeholder="Enter Username" name="usrname" required>
+          <label><b>Password</b></label>
+          <input class="w3-input w3-border" type="password" placeholder="Enter Password" name="psw" required>
+          <button class="w3-button w3-block w3-green w3-section w3-padding" type="submit">Login</button>
+          <input class="w3-check w3-margin-top" type="checkbox" checked="checked"> Remember me
+        </div>
+      </form>
+
+      <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+        <button onclick="document.getElementById('id01').style.display='none'" type="button" class="w3-button w3-red">Cancel</button>
+        <span class="w3-right w3-padding w3-hide-small">Forgot <a href="#">password?</a></span>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+    let dtReseau = <?php echo json_encode($reseau);?>
+      ,settingsColors = <?php echo json_encode($colors);?>
+      ,contDim;
+
+    window.onload = function() { 
+        d3.select('#cartoReseau')
+            .style('background-color','black')
+            .style('padding','10px')
+            .style('height','100%')
+            .style('width','100%');
+        contDim = d3.select('#cartoReseau').node().getBoundingClientRect();    
+        showCartoReseau();
+        
+    };
+
+    function showCartoReseau(){
+      d3.select("#cartoReseau").select('svg').remove();
+      var r = new reseau({'idCont':'cartoReseau','width':contDim.width,'height':600
+        ,'data':dtReseau, 'fctClickNode':showNode, 'settingsColors':settingsColors});
+    }
+    function showNode(e,d){
+        //document.getElementById('id01').style.display='block';
+        let p = d.group == 'Annotation' ? 'ano' : 'id';
+        window.open(
+            window.location.pathname+'?'+p+'='+d.id,
+            '_blank'
+        );
+        //document.location.href="<?php echo $resource->adminUrl('edit');?>"; 
+    }
+
+</script>
