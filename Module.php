@@ -27,8 +27,6 @@ class Module extends AbstractModule
     {
         parent::onBootstrap($event);
 
-        // The autoload doesn’t work with GetId3.
-        // @see \IiifServer\Service\ControllerPlugin\MediaDimensionFactory
         //require_once __DIR__ . '/vendor/autoload.php';
 
     }

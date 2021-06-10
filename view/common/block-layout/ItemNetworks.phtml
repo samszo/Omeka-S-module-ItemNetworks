@@ -7,17 +7,29 @@ if($idItem){
 } elseif ($idAno) {
     $resource = $this->api()->read('annotations', $idAno)->getContent();
 } else{
-    $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent()[0];
+    $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent();
+    if($resource)$resource=$resource[0];
 }        
 
 $reseau = $this->ItemNetworksFactory($resource,2);
 $colors = $this->colors;
 
 ?>
+<?php if ($resource): ?>
+
 <h4><?php echo $this->heading.' : '.$resource->displayTitle();?> <a href="<?php echo $resource->adminUrl(); ?>">(admin)</a></h4>
 <div class="cartoSem" id='cartoReseau' ></div>
-
 <div id='itemValues' ><?php echo $resource->displayValues();?></div>
+
+<?php else: ?>
+
+<h4><?php echo $this->heading.' : PAS DE RESSOURCES';?></h4>
+<br/>
+<a href="<?php echo $this->plugin('url')('admin').'/item/add'; ?>">ajouter des ressources</a>
+<div class="cartoSem" id='cartoReseau' ></div>
+
+<?php endif ?>
+
 
 
 <div id="id01" class="w3-modal">
@@ -75,7 +87,6 @@ $colors = $this->colors;
             window.location.pathname+'?'+p+'='+d.id,
             '_blank'
         );
-        //document.location.href="<?php echo $resource->adminUrl('edit');?>"; 
     }
 
 </script>

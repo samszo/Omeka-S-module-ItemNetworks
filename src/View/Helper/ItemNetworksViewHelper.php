@@ -41,6 +41,7 @@ class ItemNetworksViewHelper extends AbstractHelper
      */
     public function __invoke($item, $nivMax=false)
     {
+        if(!$item) return [];
         if($nivMax)$this->nivMax=$nivMax;
         $this->item = $item;
         
