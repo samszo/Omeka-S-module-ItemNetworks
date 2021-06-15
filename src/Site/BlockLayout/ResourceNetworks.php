@@ -1,5 +1,5 @@
 <?php 
-namespace ItemNetworks\Site\BlockLayout;
+namespace ResourceNetworks\Site\BlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\SitePageBlockRepresentation;
@@ -9,16 +9,16 @@ use Omeka\Site\BlockLayout\AbstractBlockLayout;
 use Omeka\Entity\SitePageBlock;
 use Omeka\Stdlib\ErrorStore;
 
-class ItemNetworks extends AbstractBlockLayout
+class ResourceNetworks extends AbstractBlockLayout
 {
     /**
      * The default partial view script.
      */
-    const PARTIAL_NAME = 'common/block-layout/ItemNetworks';
+    const PARTIAL_NAME = 'common/block-layout/ResourceNetworks';
 
     public function getLabel()
     {
-        return 'ItemNetworks'; // @translate
+        return 'ResourceNetworks'; // @translate
     }
 
     public function onHydrate(SitePageBlock $block, ErrorStore $errorStore): void
@@ -57,8 +57,8 @@ class ItemNetworks extends AbstractBlockLayout
         // Factory is not used to make rendering simpler.
         $services = $site->getServiceLocator();
         $formElementManager = $services->get('FormElementManager');
-        $defaultSettings = $services->get('Config')['ItemNetworks']['block_settings']['ItemNetworks'];
-        $fieldset = $formElementManager->get(\ItemNetworks\Form\ItemNetworksFieldset::class);
+        $defaultSettings = $services->get('Config')['ResourceNetworks']['block_settings']['ResourceNetworks'];
+        $fieldset = $formElementManager->get(\ResourceNetworks\Form\ResourceNetworksFieldset::class);
 
         $data = $block ? $block->data() + $defaultSettings : $defaultSettings;
 
@@ -113,6 +113,7 @@ class ItemNetworks extends AbstractBlockLayout
         $vars = [
             'heading' => $block->dataValue('heading', ''),
             'colors' => $block->dataValue('colors', ''),
+            'itemsets' => $block->dataValue('itemsets', ''),
         ];
         return $view->partial(self::PARTIAL_NAME, $vars);
     }
@@ -126,9 +127,9 @@ class ItemNetworks extends AbstractBlockLayout
     public function prepareRender(PhpRenderer $view)
     {
 
-        $view->headScript()->appendFile($view->assetUrl('js/d3.min.js','ItemNetworks'));
-        $view->headScript()->appendFile($view->assetUrl('js/reseau.js','ItemNetworks'));
-        $view->headLink()->appendStylesheet($view->assetUrl('css/w3.css','ItemNetworks'));
+        $view->headScript()->appendFile($view->assetUrl('js/d3.min.js','ResourceNetworks'));
+        $view->headScript()->appendFile($view->assetUrl('js/reseau.js','ResourceNetworks'));
+        $view->headLink()->appendStylesheet($view->assetUrl('css/w3.css','ResourceNetworks'));
 
     }
 
@@ -137,7 +138,9 @@ class ItemNetworks extends AbstractBlockLayout
         $assetUrl = $view->plugin('assetUrl');
         //$view->headLink()->appendStylesheet($assetUrl('css/asset-form.css', 'Omeka'));
         $view->headScript()
-            ->appendFile($assetUrl('js/colors-form.js', 'ItemNetworks'), 'text/javascript', ['defer' => 'defer']);
+            ->appendFile($assetUrl('js/colors-form.js', 'ResourceNetworks'), 'text/javascript', ['defer' => 'defer']);
+        $view->headScript()
+            ->appendFile($assetUrl('js/itemsets-form.js', 'ResourceNetworks'), 'text/javascript', ['defer' => 'defer']);
     }
 
 }

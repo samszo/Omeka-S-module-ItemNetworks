@@ -1,17 +1,15 @@
 <?php
 
-$idItem =$this->params()->fromQuery('id', '');
-$idAno =$this->params()->fromQuery('ano', '');
-if($idItem){
-    $resource = $this->api()->read('items', $idItem)->getContent();
-} elseif ($idAno) {
-    $resource = $this->api()->read('annotations', $idAno)->getContent();
+$id =$this->params()->fromQuery('id', '');
+$p =$this->params()->fromQuery('p', 'item');
+if($id){
+  $resource = $this->api()->read('resources', $id)->getContent();
 } else{
-    $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent();
-    if($resource)$resource=$resource[0];
+  $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent();
+  if($resource)$resource=$resource[0];
 }        
 
-$reseau = $this->ItemNetworksFactory($resource,2);
+$reseau = $this->ResourceNetworksFactory($resource,2);
 $colors = $this->colors;
 
 ?>
@@ -82,9 +80,17 @@ $colors = $this->colors;
     }
     function showNode(e,d){
         //document.getElementById('id01').style.display='block';
-        let p = d.group == 'Annotation' ? 'ano' : 'id';
+        let p = 'item';
+        switch (d.group) {
+          case 'Annotation':
+            $p = 'ano'            
+            break;
+          case 'Collection':
+            $p = 'col'            
+            break;        
+        }
         window.open(
-            window.location.pathname+'?'+p+'='+d.id,
+            window.location.pathname+'?p='+p+'&id='+d.id,
             '_blank'
         );
     }

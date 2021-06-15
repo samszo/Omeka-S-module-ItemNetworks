@@ -1,55 +1,64 @@
 <?php
-namespace ItemNetworks\View\Helper;
+namespace ResourceNetworks\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
 use Laminas\Filter\RealPath;
 use \Datetime;
 
-class ItemNetworksViewHelper extends AbstractHelper
+class ResourceNetworksViewHelper extends AbstractHelper
 {
     protected $api;
-    protected $conn;
     protected $logger;
     protected $services;
-    protected $entityManager;   
 
     var $rs;
     var $doublons;
     var $nivMax=1;//profondeur de la recherche
     var $reseau;
-    var $item;
+    var $r;
     //pour éviter un réseau trop grand on exclut des relations
     var $excluRela = ['skos:semanticRelation','cito:isCompiledBy'];
+    var $showItemset = [];
     
     public function __construct($services)
     {
       $this->api = $services['api'];
-      $this->conn = $services['conn'];
       $this->logger = $services['logger'];
-      $this->entityManager = $services['entityManager'];      
 
     }
 
 
     /**
-     * Récupère le réseau conceptuel d'un item
+     * Récupère le réseau conceptuel d'une resource
      *
-     * @param o:item                $item       item omeka
-     * @param int                   $nivMax     pronfondeur du reseau
+     * @param o:resource            $r        resource omeka
+     * @param int                   $nivMax   pronfondeur du reseau
      * 
      * @return array
      */
-    public function __invoke($item, $nivMax=false)
+    public function __invoke($r, $nivMax=false)
     {
-        if(!$item) return [];
-        if($nivMax)$this->nivMax=$nivMax;
-        $this->item = $item;
-        
-        $this->reseau = ['nodes'=>[],'links'=>[]];
 
-        $this->addItem($item,0);
+      foreach ($this->view->itemsets as $is) {
+        $this->showItemset[$is['itemset']]=true;
+      };
 
-        return $this->reseau;
+      if(!$r) return [];
+      if($nivMax)$this->nivMax=$nivMax;
+      $this->r = $r;
+      
+      $this->reseau = ['nodes'=>[],'links'=>[]];
+
+      switch ($r->getControllerName()) {
+        case 'itemset':
+          $t=1;
+          break;          
+        default:
+          $this->addItem($r,0);
+          break;
+      }
+
+      return $this->reseau;
 
     }
     
@@ -135,7 +144,28 @@ class ItemNetworksViewHelper extends AbstractHelper
           }
         }  
       }
-
+      //ajoute les collections de l'item
+      if($item->getControllerName()=='item'){
+        $itemSets = $item->itemSets();
+        foreach ($itemSets as $is) {
+          if(isset($this->showItemset[$is->id()])){
+            $this->addNoeud($is, 'Collection');
+            $this->reseau['links'][] = ["target"=>$is->id(),"source"=>$item->id(), "value"=>1, "group"=>'DansCollection'];  
+            //récupère les items de la collection
+            $isItems = $this->api->search('items', [
+                'item_set_id' => $is->id()
+            ])->getContent();            
+            $nbItems = count($isItems);
+            foreach ($isItems as $i) {
+              $this->addNoeud($i, 'ItemCollection');            
+              $this->reseau['links'][] = ["target"=>$i->id(),"source"=>$is->id(), "value"=>1, "group"=>'DansCollection'];  
+            }
+            $this->reseau['nodes'][$this->doublons[$is->id()]]["size"]=$nbItems;
+  
+          }
+        }
+      }
+      //
 
     }
 
@@ -143,12 +173,13 @@ class ItemNetworksViewHelper extends AbstractHelper
      * Ajout un noeud dans le réseau
      *
      * @param  o:item   $n
+     * @param  string   $group
      *
      * @return boolean
      */
-    function addNoeud($n){
+    function addNoeud($n, $group=''){
       if(!isset($this->doublons[$n->id()])){
-        $group = $n->resourceClass() ? $n->resourceClass()->label() : "item";
+        if(!$group)$group = $n->resourceClass() ? $n->resourceClass()->label() : "item";
         $this->reseau['nodes'][] = ["id"=>$n->id(),"size"=>1,"group"=>$group,"title"=>$n->displayTitle()];  
         $this->doublons[$n->id()]=count($this->reseau['nodes'])-1;
         return true;

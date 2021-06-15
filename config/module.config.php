@@ -1,15 +1,15 @@
 <?php
-namespace ItemNetworks;
+namespace ResourceNetworks;
 
 return [
 
     'view_helpers' => [
         
         'invokables' => [
-            'ItemNetworksViewHelper' => View\Helper\ItemNetworksViewHelper::class,
+            'ResourceNetworksViewHelper' => View\Helper\ResourceNetworksViewHelper::class,
         ],                
         'factories'  => [
-            'ItemNetworksFactory' => Service\ViewHelper\ItemNetworksFactory::class,
+            'ResourceNetworksFactory' => Service\ViewHelper\ResourceNetworksFactory::class,
         ],
 
     ],
@@ -20,12 +20,12 @@ return [
     ],    
     'block_layouts' => [
         'invokables' => [
-            'ItemNetworks' => Site\BlockLayout\ItemNetworks::class,
+            'ResourceNetworks' => Site\BlockLayout\ResourceNetworks::class,
         ],
     ],
     'form_elements' => [
         'invokables' => [
-            Form\ItemNetworksFieldset::class => Form\ItemNetworksFieldset::class,
+            Form\ResourceNetworksFieldset::class => Form\ResourceNetworksFieldset::class,
         ],
     ],
     'translator' => [
@@ -38,14 +38,19 @@ return [
             ],
         ],
     ],
-    'ItemNetworks' => [
+    'ResourceNetworks' => [
         'block_settings' => [
-            'ItemNetworks' => [
+            'ResourceNetworks' => [
                 'heading' => '',
                 'colors' => [
                     [
                         'class' => null,
                         'color' => null,
+                    ],
+                ],
+                'itemsets' => [
+                    [
+                        'itemset' => null,
                     ],
                 ],
             ],

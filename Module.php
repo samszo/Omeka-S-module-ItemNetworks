@@ -4,7 +4,7 @@
 
  */
 
-namespace ItemNetworks;
+namespace ResourceNetworks;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')

@@ -1,10 +1,11 @@
 <?php 
-namespace ItemNetworks\Form;
+namespace ResourceNetworks\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
+use Omeka\Form\Element\ItemSetSelect;
 
-class ItemNetworksFieldset extends Fieldset
+class ResourceNetworksFieldset extends Fieldset
 {
     public function init(): void
     {
@@ -15,6 +16,17 @@ class ItemNetworksFieldset extends Fieldset
                 'options' => [
                     'label' => 'Block title', // @translate
                     'info' => 'Heading for the block, if any.', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'o:block[__blockIndex__][o:data][itemsets]',
+                'type' => Fieldset::class,
+                'options' => [
+                    'label' => 'Visibilité des Collections', // @translate
+                ],
+                'attributes' => [
+                    'class' => 'itemsets-list',
+                    'data-next-index' => '0',
                 ],
             ])
             ->add([
@@ -81,6 +93,60 @@ class ItemNetworksFieldset extends Fieldset
                         'class' => 'color-form-remove button red',
                     ],
                 ]);
+
+
+                $fieldsetBaseIS = $this->get('o:block[__blockIndex__][o:data][itemsets]');
+                $fieldsetBaseIS
+                    ->add([
+                        'name' => 'o:block[__blockIndex__][o:data][itemsets][__itemsetIndex__]',
+                        'type' => Fieldset::class,
+                        'options' => [
+                            'label' => 'Choisir une collection à afficher', // @translate
+                            'use_as_base_fieldset' => true,
+                        ],
+                        'attributes' => [
+                            'class' => 'itemset-data',
+                            'data-index' => '__itemsetIndex__',
+                        ],
+                    ]);
+                $fieldsetRepeatIS = $fieldsetBaseIS->get('o:block[__blockIndex__][o:data][itemsets][__itemsetIndex__]');
+                $fieldsetRepeatIS
+                    ->add([
+                        'name' => 'o:block[__blockIndex__][o:data][itemsets][__itemsetIndex__][itemset]',
+                        'type' => ItemSetSelect::class,
+                        'options' => [
+                            'label' => 'Collection visible', // @translate
+                            'empty_option' => 'Choisir une collection…', // @translate
+                            'query' => ['is_open' => true],
+                        ],
+                        'attributes' => [
+                            'required' => true,
+                            'class' => 'chosen-select',
+                            'id' => 'library-item-set',
+                        ],
+                    ])
+                    // TODO Move remove / creation of new fieldset to js?
+                    ->add([
+                        'name' => 'add_itemset',
+                        'type' => Element\Button::class,
+                        'options' => [
+                            'label' => 'Add another', // @translate
+                        ],
+                        'attributes' => [
+                            'class' => 'itemset-form-add button',
+                        ],
+                    ])
+                    ->add([
+                        'name' => 'remove_itemset',
+                        'type' => Element\Button::class,
+                        'options' => [
+                            'label' => 'Remove', // @translate
+                        ],
+                        'attributes' => [
+                            'class' => 'itemset-form-remove button red',
+                        ],
+                    ]);
+
     
     }
 }
