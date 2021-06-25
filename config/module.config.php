@@ -27,6 +27,9 @@ return [
         'invokables' => [
             Form\ResourceNetworksFieldset::class => Form\ResourceNetworksFieldset::class,
         ],
+        'factories' => [
+            Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
+        ],
     ],
     'translator' => [
         'translation_file_patterns' => [
@@ -56,4 +59,20 @@ return [
             ],
         ],
     ],
+    'config' => [
+        'heading' => '',
+        'colors' => [
+            [
+                'class' => null,
+                'color' => null,
+            ],
+        ],
+        'itemsets' => [
+            [
+                'itemset' => null,
+            ],
+        ],
+    ],
+
+
 ];

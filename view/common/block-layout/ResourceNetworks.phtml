@@ -1,23 +1,28 @@
 <?php
-
 $id =$this->params()->fromQuery('id', '');
 $p =$this->params()->fromQuery('p', 'item');
 if($id){
   $resource = $this->api()->read('resources', $id)->getContent();
 } else{
-  $resource = $this->api()->search('items',['limit' => 1,'sort_by'=>'random'])->getContent();
+  $query = ['limit' => 1,'sort_by'=>'random'];
+  $arrIS = $this->itemsets ? $this->itemsets : $this->settings['itemsets'];
+  foreach ($arrIS as $is) {
+    $query['item_set_id'][]=$is['itemset'];
+  }
+
+  $resource = $this->api()->search('items',$query)->getContent();
   if($resource)$resource=$resource[0];
 }        
-
-$reseau = $this->ResourceNetworksFactory($resource,2);
-$colors = $this->colors;
+$urlResource = $resource->url();
+$RNF = $this->ResourceNetworksFactory($resource,2);
+$reseau = $RNF['reseau'];
+$colors = $this->colors ? $this->colors : $RNF['colors'];
 
 ?>
 <?php if ($resource): ?>
 
 <h4><?php echo $this->heading.' : '.$resource->displayTitle();?> <a href="<?php echo $resource->adminUrl(); ?>">(admin)</a></h4>
 <div class="cartoSem" id='cartoReseau' ></div>
-<div id='itemValues' ><?php echo $resource->displayValues();?></div>
 
 <?php else: ?>
 
@@ -60,7 +65,9 @@ $colors = $this->colors;
 <script>
     let dtReseau = <?php echo json_encode($reseau);?>
       ,settingsColors = <?php echo json_encode($colors);?>
-      ,contDim;
+      ,contDim
+      , resource = <?php echo json_encode($resource);?>
+      , urlResource = '<?php echo $urlResource;?>';
 
     window.onload = function() { 
         d3.select('#cartoReseau')
@@ -79,20 +86,12 @@ $colors = $this->colors;
         ,'data':dtReseau, 'fctClickNode':showNode, 'settingsColors':settingsColors});
     }
     function showNode(e,d){
-        //document.getElementById('id01').style.display='block';
-        let p = 'item';
-        switch (d.group) {
-          case 'Annotation':
-            $p = 'ano'            
-            break;
-          case 'Collection':
-            $p = 'col'            
-            break;        
-        }
-        window.open(
-            window.location.pathname+'?p='+p+'&id='+d.id,
-            '_blank'
-        );
+
+      let url = urlResource.replace(resource['o:id'],d.id);
+      if(d.group=='Annotation') url = url.replace('item','annotation');
+      if(d.group=='Collection') url = url.replace('item','item-set');
+      window.open(url);
+
     }
 
 </script>

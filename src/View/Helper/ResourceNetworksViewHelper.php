@@ -9,7 +9,7 @@ class ResourceNetworksViewHelper extends AbstractHelper
 {
     protected $api;
     protected $logger;
-    protected $services;
+    protected $settings;
 
     var $rs;
     var $doublons;
@@ -24,6 +24,7 @@ class ResourceNetworksViewHelper extends AbstractHelper
     {
       $this->api = $services['api'];
       $this->logger = $services['logger'];
+      $this->settings = $services['settings']->get('ResourceNetworksConfigs');
 
     }
 
@@ -39,9 +40,12 @@ class ResourceNetworksViewHelper extends AbstractHelper
     public function __invoke($r, $nivMax=false)
     {
 
-      foreach ($this->view->itemsets as $is) {
-        $this->showItemset[$is['itemset']]=true;
-      };
+      $arrIS = $this->view->itemsets ? $this->view->itemsets : $this->settings['itemsets'];
+      if($arrIS){
+        foreach ($arrIS as $is) {
+          $this->showItemset[$is['itemset']]=true;
+        };  
+      }
 
       if(!$r) return [];
       if($nivMax)$this->nivMax=$nivMax;
@@ -58,7 +62,7 @@ class ResourceNetworksViewHelper extends AbstractHelper
           break;
       }
 
-      return $this->reseau;
+      return ['resource'=>$r,'reseau'=>$this->reseau,'colors'=>$this->settings['colors']];
 
     }
     

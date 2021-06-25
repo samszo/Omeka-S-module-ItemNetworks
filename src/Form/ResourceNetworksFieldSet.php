@@ -120,7 +120,6 @@ class ResourceNetworksFieldset extends Fieldset
                             'query' => ['is_open' => true],
                         ],
                         'attributes' => [
-                            'required' => true,
                             'class' => 'chosen-select',
                             'id' => 'library-item-set',
                         ],
